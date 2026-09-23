@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boundary Boss - Gen Z Assertive Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            violet: '#8b5cf6',
+                            pink: '#ec4899',
+                            cyan: '#06b6d4',
+                            darkbg: '#0f172a',
+                            cardbg: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 18px 18px 2px 18px;
+        }
+        .chat-bubble-npc {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px 18px 18px 2px;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Navbar -->
+    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-gradient-to-tr from-emerald-500 to-cyan-500 p-2 rounded-xl text-slate-950 font-black">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base md:text-lg tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                        BOUNDARY BOSS 💜
+                    </h1>
+                    <p class="text-[10px] text-slate-400 font-medium">GEN Z ASSERTIVE SIMULATOR</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="openApiKeyModal()" id="apiBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold px-3 py-1.5 rounded-lg border border-amber-500/30 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-key"></i> <span id="apiBtnText">API Key</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl mx-auto px-4 mt-6">
+
+        <!-- Selector Skenario -->
+        <div class="glass-card p-4 rounded-2xl mb-6">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Pilih Skenario Konflik:</label>
+            <select id="scenarioSelect" onchange="changeScenario()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                <option value="utang">💸 Temen Pinjem Duit Mulu (Peer Financial Boundary)</option>
+                <option value="tugas">📚 Tugas Kelompok Tapi Kamu Kerja Sendiri (Academic Boundary)</option>
+                <option value="nongkrong">🔋 Lagi Social Battery Low Dipaksa Nongkrong (Energy Boundary)</option>
+                <option value="bajukamera">📸 Barang Pinjaman Nggak Dibali-balikin (Personal Belonging)</option>
+            </select>
+            <p id="scenarioDesc" class="text-xs text-slate-400 mt-2 bg-slate-900/50 p-2.5 rounded-lg border border-slate-800/80">
+                <!-- Skenario desc dinamis -->
+            </p>
+        </div>
+
+        <!-- Box Feedback & Score -->
+        <div id="analysisBox" class="glass-card p-5 rounded-2xl mb-6 hidden">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-emerald-400"></i> Analisis Respon Kamu
+                </h3>
+                <span id="badgeCategory" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                    Evaluating...
+                </span>
+            </div>
+
+            <!-- Progress Bars -->
+            <div class="space-y-2 mb-4 text-xs">
+                <div>
+                    <div class="flex justify-between mb-1 text-slate-300">
+                        <span>Asertivitas (Firm & Respectful)</span>
+                        <span id="scoreAssertive">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2">
+                        <div id="barAssertive" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-1 text-slate-300">
+                        <span>Empati & Sopan Santun</span>
+                        <span id="scoreEmpathy">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2">
+                        <div id="barEmpathy" class="bg-cyan-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Text -->
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed mb-3">
+                <span class="font-bold text-emerald-400 block mb-1">💡 Evaluasi BK:</span>
+                <p id="feedbackText">...</p>
+            </div>
+
+            <!-- Upgrade Formula -->
+            <div class="bg-purple-950/30 p-3 rounded-xl border border-purple-800/40 text-xs text-purple-200">
+                <span class="font-bold text-purple-400 block mb-1"><i class="fa-solid fa-wand-magic-sparkles"></i> Rekomendasi Upgrade Kalimat (I-Message):</span>
+                <p id="upgradeText" class="italic text-purple-300">...</p>
+            </div>
+        </div>
+
+        <!-- Room Chat -->
+        <div class="glass-card rounded-2xl overflow-hidden flex flex-col h-[450px]">
+            <!-- Header Chat -->
+            <div class="bg-slate-900/90 border-b border-slate-800 p-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div id="npcAvatar" class="w-9 h-9 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs text-white">
+                            B
+                        </div>
+                        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute bottom-0 right-0 border-2 border-slate-900"></span>
+                    </div>
+                    <div>
+                        <h4 id="npcName" class="text-sm font-bold text-slate-200">Bima (Temen Sekelas)</h4>
+                        <p class="text-[10px] text-slate-400">Online • Siap Respon</p>
+                    </div>
+                </div>
+                <button onclick="resetChat()" class="text-xs text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-700 transition">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </button>
+            </div>
+
+            <!-- Chat Messages Container -->
+            <div id="chatBox" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs md:text-sm">
+                <!-- Chat dipopulasi via JS -->
+            </div>
+
+            <!-- Typing Bar -->
+            <div class="p-3 bg-slate-900/90 border-t border-slate-800 flex gap-2">
+                <input type="text" id="userInput" onkeydown="if(event.key==='Enter') sendMessage()" placeholder="Ketik respon kamu ke temanmu..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                <button onclick="sendMessage()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-1.5 transition">
+                    <span>Kirim</span> <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal API Key -->
+    <div id="apiModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-card max-w-md w-full p-6 rounded-2xl relative border border-slate-700">
+            <h3 class="font-bold text-base text-slate-100 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-key text-amber-400"></i> API Key Gemini (Google AI)
+            </h3>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                Aplikasi ini mendukung AI cerdas bawaan. Masukkan API Key gratis dari <b>Google AI Studio</b> agar analisis komunikasi kamu dinilai secara presisi oleh AI!
+            </p>
+            <input type="password" id="apiKeyInput" placeholder="Paste API Key Gemini di sini (AI Studio)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 mb-4 focus:outline-none focus:border-amber-400">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeApiKeyModal()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold">Batal</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold">Simpan Key</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = {
+            utang: {
+                npcName: "Bima (Temen Sekelas)",
+                avatar: "B",
+                desc: "Temen sekelas mau utang 50rb lagi buat nongkrong, padahal utang minggu lalu 100rb belum dilunasin sama sekali.",
+                initialMsg: "Bro/Sist, urgent nih! Pinjem 50rb duls dong buat nongkrong nanti malem. Besok langsung gua ganti janji! 🙏"
+            },
+            tugas: {
+                npcName: "Rian (Temen Kelompok)",
+                avatar: "R",
+                desc: "Tugas kelompok dikumpulin besok pagi, tapi Rian dari kemarin banyak alasan dan nggak ngerjain bagian dia sama sekali.",
+                initialMsg: "Sori banget bro, semalem gua ketiduran jd bagian gua blom diselesaiin. Lu aja yg kelarin sekalian ya, kan lu jago tuh! 😅"
+            },
+            nongkrong: {
+                npcName: "Grup Geng (Siska)",
+                avatar: "S",
+                desc: "Kamu lagi capek banget (social battery habis), tapi temen-temen maksa kamu ikut nongkrong dan nuduh kamu 'sombong' kalau nggak ikut.",
+                initialMsg: "Woi parah lu ga ikut nongkrong! Sombong amat skrg, ayolah buruan keluar gaas usah banyak alasan!"
+            },
+            bajukamera: {
+                npcName: "Dika (Temen Dekat)",
+                avatar: "D",
+                desc: "Dika meminjam jaket kesayanganmu 2 minggu lalu dan berjanji mengembalikannya dalam 2 hari, tapi sampai sekarang belum dikembalikan.",
+                initialMsg: "Bro, jaket lu msh di rumah gua nih. Besok2 aja ya gua balikinnya, masih betah dipake wkwk."
+            }
+        };
+
+        let currentScenarioKey = 'utang';
+        let geminiApiKey = localStorage.getItem('GEMINI_API_KEY') || '';
+
+        window.onload = function() {
+            if(geminiApiKey) {
+                document.getElementById('apiBtnText').innerText = 'API Key Active';
+                document.getElementById('apiBtn').classList.add('border-emerald-500', 'text-emerald-400');
+            }
+            changeScenario();
+        };
+
+        function openApiKeyModal() {
+            document.getElementById('apiKeyInput').value = geminiApiKey;
+            document.getElementById('apiModal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiModal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            geminiApiKey = document.getElementById('apiKeyInput').value.trim();
+            localStorage.setItem('GEMINI_API_KEY', geminiApiKey);
+            closeApiKeyModal();
+            if(geminiApiKey) {
+                document.getElementById('apiBtnText').innerText = 'API Key Active';
+                document.getElementById('apiBtn').classList.add('border-emerald-500', 'text-emerald-400');
+            }
+        }
+
+        function changeScenario() {
+            currentScenarioKey = document.getElementById('scenarioSelect').value;
+            const sc = scenarios[currentScenarioKey];
+            document.getElementById('scenarioDesc').innerText = sc.desc;
+            document.getElementById('npcName').innerText = sc.npcName;
+            document.getElementById('npcAvatar').innerText = sc.avatar;
+            resetChat();
+        }
+
+        function resetChat() {
+            const sc = scenarios[currentScenarioKey];
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = `
+                <div class="chat-bubble-npc p-3.5 max-w-[85%] self-start shadow-sm">
+                    <p class="text-slate-200">${sc.initialMsg}</p>
+                </div>
+            `;
+            document.getElementById('analysisBox').classList.add('hidden');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const chatBox = document.getElementById('chatBox');
+            
+            // Render Chat User
+            chatBox.innerHTML += `
+                <div class="chat-bubble-user p-3.5 max-w-[85%] self-end ml-auto text-white shadow-sm">
+                    <p>${escapeHtml(text)}</p>
+                </div>
+            `;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Tampilkan Loading AI
+            document.getElementById('analysisBox').classList.remove('hidden');
+            document.getElementById('feedbackText').innerText = "Sedang menganalisis gaya komunikasimu...";
+
+            if (geminiApiKey) {
+                await analyzeWithGemini(text);
+            } else {
+                analyzeWithEnhancedHeuristic(text);
+            }
+        }
+
+        // Analisis Menggunakan Gemini 2.5 Flash
+        async function analyzeWithGemini(userText) {
+            const sc = scenarios[currentScenarioKey];
+            const prompt = `
+            Kamu adalah Guru BK & Expert Komunikasi Asertif Gen Z.
+            Skenario: ${sc.desc}
+            Pesan Lawan Bicara: "${sc.initialMsg}"
+            Respon Siswa: "${userText}"
+
+            Tugasmu: Analisis respon siswa apakah Pasif, Agresif, Pasif-Agresif, atau Asertif.
+            Kembalikan jawaban HANYA dalam format JSON valid tanpa tanda markdown (```json):
+            {
+                "category": "ASERTIF" / "PASIF" / "AGRESIF" / "PASIF-AGRESIF",
+                "assertiveScore": 0-100,
+                "empathyScore": 0-100,
+                "feedback": "Penjelasan singkat gaya santai Gen Z kenapa responnya dinilai begitu.",
+                "upgradeFormula": "Contoh kalimat asertif yang pas pakai formula I-Message (Saya merasa... kalau... karena... aku mau...)",
+                "npcReply": "Balasan balasan santai dari lawan bicara merespon pesan siswa tersebut."
+            }`;
+
+            try {
+                const response = await fetch(`[https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$){geminiApiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const data = await response.json();
+                let rawText = data.candidates[0].content.parts[0].text;
+                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const res = JSON.parse(rawText);
+
+                renderAnalysisResults(res);
+            } catch (e) {
+                console.error(e);
+                analyzeWithEnhancedHeuristic(userText); // Fallback kalau API error
+            }
+        }
+
+        // Analisis Heuristik Kasual yang Ditingkatkan
+        function analyzeWithEnhancedHeuristic(userText) {
+            const textLower = userText.toLowerCase();
+            let category = "PASIF";
+            let assertiveScore = 40;
+            let empathyScore = 50;
+            let feedback = "";
+            let upgradeFormula = "";
+            let npcReply = "";
+
+            // Kasus Agresif / Pasif-Agresif (misal: "dih balikin dulu", "bacot", kata kasar, emosi berlebih)
+            if (textLower.startsWith("dih") || textLower.includes("bacot") || textLower.includes("goblok") || textLower.includes("lu aja") || textLower.includes("ga usah") || textLower.includes("apaan si")) {
+                category = "AGRESIF / DEFENSIF";
+                assertiveScore = 30;
+                empathyScore = 20;
+                feedback = "Respon kamu terkesan ketus/defensif ('dih...'). Walau kamu berusaha menolak, nada begini bikin lawan bicara defensif dan memicu debat kusir bukannya menyelesaikan masalah.";
+                upgradeFormula = "Gunakan alasan tegas tanpa menyindir: 'Gua ga bisa minjemin lagi bro, utang kemarin kan belum beres. Gua butuh uangnya juga buat keperluan lain.'";
+                npcReply = "Yah elah santai kali, biasa aja dong ga usah pake 'dih' segala. Gua kan cuma nanya!";
+            } 
+            // Kasus Pasif
+            else if (textLower.includes("yaudah") || textLower.includes("terserah") || textLower.includes("maaf ya") || textLower.length < 5) {
+                category = "PASIF";
+                assertiveScore = 20;
+                empathyScore = 70;
+                feedback = "Kamu terlalu mengalah dan enggan menetapkan batas (boundary). Ini bisa bikin kamu dimanfaatkan terus-terusan.";
+                upgradeFormula = "Jelaskan posisi kamu secara jujur: 'Sori banget belum bisa, uangnya lagi mau aku pake buat kebutuhan penting minggu ini.'";
+                npcReply = "Nah gitu dong! Sip bro, tar malam gua jemput ya!";
+            } 
+            // Kasus Asertif Bagus
+            else {
+                category = "ASERTIF";
+                assertiveScore = 85;
+                empathyScore = 80;
+                feedback = "Keren! Komunikasi kamu cukup jelas, langsung ke inti masalah, dan tetap menghargai tanpa emosi berlebihan.";
+                upgradeFormula = "Respon kamu udah mantap! Format I-Message: 'Aku mengerti kamu butuh, tapi aku belum bisa minjemin lagi sebelum yang kemarin dilunasin.'";
+                npcReply = "Oh gitu ya... Yaudah deh bro, sori ya. Nanti gua usahain pelan-pelan kelarin utang kemarin.";
+            }
+
+            renderAnalysisResults({ category, assertiveScore, empathyScore, feedback, upgradeFormula, npcReply });
+        }
+
+        function renderAnalysisResults(res) {
+            document.getElementById('scoreAssertive').innerText = res.assertiveScore + "%";
+            document.getElementById('barAssertive').style.width = res.assertiveScore + "%";
+            
+            document.getElementById('scoreEmpathy').innerText = res.empathyScore + "%";
+            document.getElementById('barEmpathy').style.width = res.empathyScore + "%";
+
+            document.getElementById('badgeCategory').innerText = res.category;
+            document.getElementById('feedbackText').innerText = res.feedback;
+            document.getElementById('upgradeText').innerText = res.upgradeFormula;
+
+            // Render Balasan NPC
+            const chatBox = document.getElementById('chatBox');
+            setTimeout(() => {
+                chatBox.innerHTML += `
+                    <div class="chat-bubble-npc p-3.5 max-w-[85%] self-start shadow-sm">
+                        <p class="text-slate-200">${escapeHtml(res.npcReply)}</p>
+                    </div>
+                `;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 600);
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
